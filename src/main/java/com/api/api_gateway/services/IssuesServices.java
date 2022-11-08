@@ -17,8 +17,6 @@ public class IssuesServices
         if(lastIssueID!=null)
             baseUrl += "&last-issue-id="+lastIssueID;
 
-        System.out.println("baseUrl = " + baseUrl);
-
         AtomicReference<HttpStatus> httpStatus = new AtomicReference<>(HttpStatus.OK);
         WebClient webClient = WebClient.create();
         List issues =

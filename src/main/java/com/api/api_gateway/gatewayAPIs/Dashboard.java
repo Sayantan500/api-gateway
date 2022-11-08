@@ -25,9 +25,6 @@ public class Dashboard
         UserProfile userProfile = UserServices.getUserProfile(userID); //getting the user profile data
         List<Issues> issues = IssuesServices.getIssuesList(userID,null); //getting the issues of the user
 
-        System.out.println("issues = " + issues);
-        System.out.println("user profile = " + userProfile);
-
         DashboardData dashboardData;
 
         if(userProfile==null || issues.size()==0)
