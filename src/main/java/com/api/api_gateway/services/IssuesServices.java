@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class IssuesServices
 {
-    public static List<Issues> getIssuesList(String userID, String lastIssueID)
+    public static Issues[] getIssuesList(String userID, String lastIssueID)
     {
         System.out.println("User ID : " + userID);
 
@@ -19,7 +19,7 @@ public class IssuesServices
 
         AtomicReference<HttpStatus> httpStatus = new AtomicReference<>(HttpStatus.OK);
         WebClient webClient = WebClient.create();
-        List issues =
+        Issues[] issues =
                 webClient.get()
                         .uri(baseUrl)
                         .retrieve()
@@ -33,7 +33,7 @@ public class IssuesServices
                             httpStatus.set(HttpStatus.INTERNAL_SERVER_ERROR);
                             return clientResponse.bodyToMono(Throwable.class);
                         })
-                        .bodyToMono(List.class)
+                        .bodyToMono(Issues[].class)
                         .block();
         return httpStatus.get()==HttpStatus.OK ?
                 issues :
