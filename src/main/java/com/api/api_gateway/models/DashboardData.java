@@ -2,18 +2,16 @@ package com.api.api_gateway.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.List;
-
 public class DashboardData
 {
     @JsonProperty("profile") private UserProfile userProfile;
-    @JsonProperty("issues") private List<Issues> issues;
+    @JsonProperty("issues") private Issues[] issues;
 
     public void setUserProfile(UserProfile userProfile) {
         this.userProfile = userProfile;
     }
 
-    public void setIssues(List<Issues> issues) {
+    public void setIssues(Issues[] issues) {
         this.issues = issues;
     }
 
@@ -21,7 +19,7 @@ public class DashboardData
         return userProfile;
     }
 
-    public List<Issues> getIssues() {
+    public Issues[] getIssues() {
         return issues;
     }
 }
