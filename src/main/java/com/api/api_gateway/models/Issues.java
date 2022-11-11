@@ -15,7 +15,7 @@ public class Issues
     @JsonProperty("solution_id")    private String solutionId;
 
     @JsonProperty("status")         private String status;
-    @JsonProperty("created_at")     private Timestamp createdAt;
+    @JsonProperty("created_at")     private long createdAt;
 
     public Issues() {}
 
@@ -50,12 +50,8 @@ public class Issues
         this.solutionId = solutionId;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(long createdAt) {
         this.createdAt = createdAt;
-    }
-
-    public void setTimeStamp() {
-        this.createdAt = Timestamp.now();
     }
 
     /**
@@ -89,7 +85,7 @@ public class Issues
         return status;
     }
 
-    public Timestamp getCreatedAt() {
+    public long getCreatedAt() {
         return createdAt;
     }
 }
