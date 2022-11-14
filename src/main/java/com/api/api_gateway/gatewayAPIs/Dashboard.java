@@ -62,7 +62,7 @@ public class Dashboard
     @GetMapping("/issues")
     public ResponseEntity<Object> getAllIssuesOfAnUser(
             @RequestParam(name = "uid") String uid,
-            @RequestParam(name = "last-issue-id") String lastIssue
+            @RequestParam(name = "last-issue-id",required = false) String lastIssue
     )
     {
         ResponseObject<Issues[]> response = issuesServices.getIssuesList(uid, lastIssue);
