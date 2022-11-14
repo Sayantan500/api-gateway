@@ -1,14 +1,16 @@
 package com.api.api_gateway.services;
 
+import com.api.api_gateway.models.ResponseObject;
 import com.api.api_gateway.models.UserProfile;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.concurrent.atomic.AtomicReference;
-
+@Service
 public class UserServices
 {
-    public static UserProfile getUserProfile(String userID)
+    public ResponseObject<UserProfile> getUserProfile(String userID)
     {
         System.out.println("[ UserServices.getUserProfile ] User ID : " + userID);
 
@@ -30,8 +32,9 @@ public class UserServices
                         })
                         .bodyToMono(UserProfile.class)
                         .block();
-        return httpStatus.get()==HttpStatus.OK ?
-                userProfile :
-                null;
+        return new ResponseObject<>(
+                userProfile,
+                httpStatus.get()
+        );
     }
 }
