@@ -4,6 +4,7 @@ import com.api.api_gateway.models.Issues;
 import com.api.api_gateway.models.ResponseObject;
 import com.api.api_gateway.models.UpdateSolutionIdFieldOfIssues;
 import com.api.api_gateway.models.UpdateStatusFieldOfIssues;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -13,24 +14,28 @@ import java.util.concurrent.atomic.AtomicReference;
 public class IssuesServices
 {
     private final WebClient webClient;
+    private final String baseUrl;
 
-    public IssuesServices(WebClient webClient) {
+    public IssuesServices(
+            WebClient webClient,
+            @Qualifier("issuesBaseUrl") String baseUrl
+    )
+    {
         this.webClient = webClient;
+        this.baseUrl = baseUrl;
     }
 
     public ResponseObject<Issues[]> getIssuesList(String userID, String lastIssueID)
     {
-        System.out.println("User ID : " + userID);
-
-        String baseUrl = "http://localhost:16004/issues?uid="+userID;
+        String requestUrl = baseUrl + "?uid="+userID;
         if(lastIssueID!=null)
-            baseUrl += "&last-issue-id="+lastIssueID;
+            requestUrl += "&last-issue-id="+lastIssueID;
 
         AtomicReference<HttpStatus> httpStatus = new AtomicReference<>(HttpStatus.OK);
         Issues[] issues =
                 webClient
                         .get()
-                        .uri(baseUrl)
+                        .uri(requestUrl)
                         .retrieve()
                         .onStatus(HttpStatus::is4xxClientError,clientResponse -> {
                             System.out.println(clientResponse.statusCode());
@@ -56,7 +61,7 @@ public class IssuesServices
         Issues response =
                 webClient
                         .post()
-                        .uri("http://localhost:16004/issues/new")
+                        .uri(baseUrl + "/new")
                         .bodyValue(newIssues)
                         .retrieve()
                         .onStatus(HttpStatus::is4xxClientError,clientResponse -> {
@@ -82,7 +87,7 @@ public class IssuesServices
     {
         webClient
                 .patch()
-                .uri("http://localhost:16004/issues/" + issueId + "/solution-id")
+                .uri(baseUrl + "/" + issueId + "/solution-id")
                 .bodyValue(updateObj)
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError,clientResponse -> {
@@ -101,7 +106,7 @@ public class IssuesServices
     {
         webClient
                 .patch()
-                .uri("http://localhost:16004/issues/" + issueId + "/status")
+                .uri(baseUrl + "/" + issueId + "/status")
                 .bodyValue(updateObj)
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError,clientResponse -> {
