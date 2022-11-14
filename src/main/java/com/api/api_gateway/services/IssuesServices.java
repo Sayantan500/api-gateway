@@ -2,6 +2,8 @@ package com.api.api_gateway.services;
 
 import com.api.api_gateway.models.Issues;
 import com.api.api_gateway.models.ResponseObject;
+import com.api.api_gateway.models.UpdateSolutionIdFieldOfIssues;
+import com.api.api_gateway.models.UpdateStatusFieldOfIssues;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -74,5 +76,43 @@ public class IssuesServices
                 response,
                 httpStatus.get()
         );
+    }
+
+    void updateSolutionIdFieldValueOfIssue(String issueId, UpdateSolutionIdFieldOfIssues updateObj)
+    {
+        webClient
+                .patch()
+                .uri("http://localhost:16004/issues/" + issueId + "/solution-id")
+                .bodyValue(updateObj)
+                .retrieve()
+                .onStatus(HttpStatus::is4xxClientError,clientResponse -> {
+                    System.out.println(clientResponse.statusCode());
+                    return clientResponse.bodyToMono(Throwable.class);
+                })
+                .onStatus(HttpStatus::is5xxServerError,clientResponse -> {
+                    System.out.println(clientResponse.statusCode());
+                    return clientResponse.bodyToMono(Throwable.class);
+                })
+                .toBodilessEntity()
+                .block();
+    }
+
+    void updateStatusFieldValueOfIssue(String issueId, UpdateStatusFieldOfIssues updateObj)
+    {
+        webClient
+                .patch()
+                .uri("http://localhost:16004/issues/" + issueId + "/status")
+                .bodyValue(updateObj)
+                .retrieve()
+                .onStatus(HttpStatus::is4xxClientError,clientResponse -> {
+                    System.out.println(clientResponse.statusCode());
+                    return clientResponse.bodyToMono(Throwable.class);
+                })
+                .onStatus(HttpStatus::is5xxServerError,clientResponse -> {
+                    System.out.println(clientResponse.statusCode());
+                    return clientResponse.bodyToMono(Throwable.class);
+                })
+                .toBodilessEntity()
+                .block();
     }
 }
