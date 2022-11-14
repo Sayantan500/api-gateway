@@ -1,15 +1,22 @@
 package com.api.api_gateway.services;
 
 import com.api.api_gateway.models.Issues;
+import com.api.api_gateway.models.ResponseObject;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
-
+@Service
 public class IssuesServices
 {
-    public static Issues[] getIssuesList(String userID, String lastIssueID)
+    private final WebClient webClient;
+
+    public IssuesServices(WebClient webClient) {
+        this.webClient = webClient;
+    }
+
+    public ResponseObject<Issues[]> getIssuesList(String userID, String lastIssueID)
     {
         System.out.println("User ID : " + userID);
 
@@ -18,9 +25,9 @@ public class IssuesServices
             baseUrl += "&last-issue-id="+lastIssueID;
 
         AtomicReference<HttpStatus> httpStatus = new AtomicReference<>(HttpStatus.OK);
-        WebClient webClient = WebClient.create();
         Issues[] issues =
-                webClient.get()
+                webClient
+                        .get()
                         .uri(baseUrl)
                         .retrieve()
                         .onStatus(HttpStatus::is4xxClientError,clientResponse -> {
@@ -35,8 +42,37 @@ public class IssuesServices
                         })
                         .bodyToMono(Issues[].class)
                         .block();
-        return httpStatus.get()==HttpStatus.OK ?
-                issues :
-                null;
+        return new ResponseObject<>(
+                issues,
+                httpStatus.get()
+        );
+    }
+
+    public ResponseObject<Issues> saveNewPost(Issues newIssues)
+    {
+        AtomicReference<HttpStatus> httpStatus = new AtomicReference<>(HttpStatus.OK);
+        Issues response =
+                webClient
+                        .post()
+                        .uri("http://localhost:16004/issues/new")
+                        .bodyValue(newIssues)
+                        .retrieve()
+                        .onStatus(HttpStatus::is4xxClientError,clientResponse -> {
+                            System.out.println(clientResponse.statusCode());
+                            httpStatus.set(clientResponse.statusCode());
+                            return clientResponse.bodyToMono(Throwable.class);
+                        })
+                        .onStatus(HttpStatus::is5xxServerError,clientResponse -> {
+                            System.out.println(clientResponse.statusCode());
+                            httpStatus.set(clientResponse.statusCode());
+                            return clientResponse.bodyToMono(Throwable.class);
+                        })
+                        .bodyToMono(Issues.class)
+                        .block();
+
+        return new ResponseObject<>(
+                response,
+                httpStatus.get()
+        );
     }
 }
