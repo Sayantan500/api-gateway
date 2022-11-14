@@ -1,5 +1,6 @@
 package com.api.api_gateway.services;
 
+import com.api.api_gateway.models.ResponseObject;
 import com.api.api_gateway.models.Solution;
 import com.api.api_gateway.models.UpdateSolutionIdFieldOfIssues;
 import com.api.api_gateway.models.UpdateStatusFieldOfIssues;
@@ -20,7 +21,7 @@ public class SolutionServices
         this.issuesServices = issuesServices;
     }
 
-    public Object saveNewSolution(String issueId, Solution newSolution)
+    public ResponseObject<Solution> saveNewSolution(String issueId, Solution newSolution)
     {
         AtomicReference<HttpStatus> httpStatus = new AtomicReference<>(HttpStatus.OK);
         Solution solutionResponse =
@@ -68,6 +69,9 @@ public class SolutionServices
         }
 
 
-        return httpStatus.get();
+        return new ResponseObject<>(
+                solutionResponse,
+                httpStatus.get()
+        );
     }
 }
