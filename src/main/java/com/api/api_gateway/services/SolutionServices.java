@@ -4,6 +4,7 @@ import com.api.api_gateway.models.ResponseObject;
 import com.api.api_gateway.models.Solution;
 import com.api.api_gateway.models.UpdateSolutionIdFieldOfIssues;
 import com.api.api_gateway.models.UpdateStatusFieldOfIssues;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -15,10 +16,16 @@ public class SolutionServices
 {
     private final WebClient webClient;
     private final IssuesServices issuesServices;
+    private final String baseUrl;
 
-    public SolutionServices(WebClient webClient, IssuesServices issuesServices) {
+    public SolutionServices(
+            WebClient webClient,
+            IssuesServices issuesServices,
+            @Qualifier("solutionsBaseUrl") String baseUrl
+    ) {
         this.webClient = webClient;
         this.issuesServices = issuesServices;
+        this.baseUrl = baseUrl;
     }
 
     public ResponseObject<Solution> saveNewSolution(String issueId, Solution newSolution)
@@ -27,7 +34,7 @@ public class SolutionServices
         Solution solutionResponse =
                 webClient
                 .post()
-                .uri("http://localhost:8084/solutions/new")
+                .uri(baseUrl + "/new")
                 .bodyValue(newSolution)
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError,clientResponse -> {
