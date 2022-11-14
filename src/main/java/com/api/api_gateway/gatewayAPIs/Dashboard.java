@@ -1,10 +1,8 @@
 package com.api.api_gateway.gatewayAPIs;
 
-import com.api.api_gateway.models.DashboardData;
-import com.api.api_gateway.models.Issues;
-import com.api.api_gateway.models.ResponseObject;
-import com.api.api_gateway.models.UserProfile;
+import com.api.api_gateway.models.*;
 import com.api.api_gateway.services.IssuesServices;
+import com.api.api_gateway.services.SolutionServices;
 import com.api.api_gateway.services.UserServices;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +14,12 @@ public class Dashboard
 {
     private final IssuesServices issuesServices;
     private final UserServices userServices;
+    private final SolutionServices solutionServices;
 
-    public Dashboard(IssuesServices issuesServices, UserServices userServices) {
+    public Dashboard(IssuesServices issuesServices, UserServices userServices, SolutionServices solutionServices) {
         this.issuesServices = issuesServices;
         this.userServices = userServices;
+        this.solutionServices = solutionServices;
     }
 
     @GetMapping("/")
@@ -70,5 +70,14 @@ public class Dashboard
                 response.getMessageBody(),
                 response.getStatus()
         );
+    }
+
+    @PostMapping("/solution/new")
+    public ResponseEntity<Object> sendNewSolutionForIssue(
+            @RequestHeader(name = "issue-id") String issueId,
+            @RequestBody Solution newSolution
+            )
+    {
+        return new ResponseEntity<>((HttpStatus) solutionServices.saveNewSolution(issueId,newSolution));
     }
 }
