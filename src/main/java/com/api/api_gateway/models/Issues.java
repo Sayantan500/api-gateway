@@ -1,7 +1,6 @@
 package com.api.api_gateway.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.cloud.Timestamp;
 
 public class Issues
 {
