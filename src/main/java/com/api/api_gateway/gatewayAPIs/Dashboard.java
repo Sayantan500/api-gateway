@@ -58,4 +58,17 @@ public class Dashboard
                 response.getStatus()
         );
     }
+
+    @GetMapping("/issues")
+    public ResponseEntity<Object> getAllIssuesOfAnUser(
+            @RequestParam(name = "uid") String uid,
+            @RequestParam(name = "last-issue-id") String lastIssue
+    )
+    {
+        ResponseObject<Issues[]> response = issuesServices.getIssuesList(uid, lastIssue);
+        return new ResponseEntity<>(
+                response.getMessageBody(),
+                response.getStatus()
+        );
+    }
 }
