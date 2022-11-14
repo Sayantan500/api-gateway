@@ -78,6 +78,10 @@ public class Dashboard
             @RequestBody Solution newSolution
             )
     {
-        return new ResponseEntity<>((HttpStatus) solutionServices.saveNewSolution(issueId,newSolution));
+        ResponseObject<Solution> solutionResponseObject = solutionServices.saveNewSolution(issueId,newSolution);
+        return new ResponseEntity<>(
+                solutionResponseObject.getMessageBody(),
+                solutionResponseObject.getStatus()
+        );
     }
 }
