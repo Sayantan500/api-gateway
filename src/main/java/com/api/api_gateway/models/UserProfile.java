@@ -17,4 +17,20 @@ public class UserProfile
     private String Email;
 
     public UserProfile() {}
+
+    public String getName() {
+        return Name;
+    }
+
+    public int getRoll_Number() {
+        return Roll_Number;
+    }
+
+    public long getRegistration_Number() {
+        return Registration_Number;
+    }
+
+    public String getEmail() {
+        return Email;
+    }
 }
