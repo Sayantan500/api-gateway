@@ -16,6 +16,9 @@ public class ConfigClass
 
     @Value("${api.baseurl.solutions}")
     private String solutionsBaseUrl;
+
+    @Value("${api.baseurl.sign}")
+    private String signInBaseUrl;
     @Bean
     public WebClient getWebClient()
     {
@@ -35,5 +38,10 @@ public class ConfigClass
     @Bean(name = "solutionsBaseUrl")
     public String getSolutionsBaseUrl(){
         return solutionsBaseUrl;
+    }
+
+    @Bean(name = "loginBaseUrl")
+    public String getSignInBaseUrl(){
+        return signInBaseUrl;
     }
 }
