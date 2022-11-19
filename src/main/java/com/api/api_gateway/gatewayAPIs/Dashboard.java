@@ -73,12 +73,13 @@ public class Dashboard
     }
 
     @PostMapping("/solution/new")
-    public ResponseEntity<Object> sendNewSolutionForIssue(
-            @RequestHeader(name = "issue-id") String issueId,
-            @RequestBody Solution newSolution
-            )
+    public ResponseEntity<Object> sendNewSolutionForIssue(@RequestBody Solution newSolution)
     {
-        ResponseObject<Solution> solutionResponseObject = solutionServices.saveNewSolution(issueId,newSolution);
+        ResponseObject<Solution> solutionResponseObject =
+                solutionServices.saveNewSolution(
+                        newSolution.getProvidedToIssue(),
+                        newSolution
+                );
         return new ResponseEntity<>(
                 solutionResponseObject.getMessageBody(),
                 solutionResponseObject.getStatus()
