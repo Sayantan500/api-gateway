@@ -1,5 +1,6 @@
 package com.api.api_gateway.services;
 
+import com.api.api_gateway.gatewayAPIs.CustomError;
 import com.api.api_gateway.models.LoginData;
 import com.api.api_gateway.models.LoginResponse;
 import com.api.api_gateway.models.ResponseObject;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -34,22 +36,32 @@ public class AuthServices
 
     public ResponseObject<LoginResponse> signIn(LoginData loginData)
     {
-        String requestUrl = signInBaseUrl +"?u=" + loginData.getUsername() + "&p=" + loginData.getPassword();
+        String requestUrl = signInBaseUrl ;
         AtomicReference<HttpStatus> httpStatus = new AtomicReference<>(HttpStatus.OK);
         LoginResponse loginResponse =
                 webClient
                         .post()
                         .uri(requestUrl)
+                        .bodyValue(loginData)
                         .retrieve()
                         .onStatus(HttpStatus::is4xxClientError, clientResponse -> {
                             System.out.println(clientResponse.statusCode());
                             httpStatus.set(HttpStatus.NOT_FOUND);
-                            return clientResponse.bodyToMono(Throwable.class);
+                            return Mono.error(
+                                    new CustomError(
+                                            clientResponse.statusCode(),
+                                            "User Not Found"
+                                    )
+                            );
                         })
                         .onStatus(HttpStatus::is5xxServerError,clientResponse -> {
                             System.out.println(clientResponse.statusCode());
                             httpStatus.set(HttpStatus.INTERNAL_SERVER_ERROR);
-                            return clientResponse.bodyToMono(Throwable.class);
+                            return Mono.error(new CustomError(
+                                            clientResponse.statusCode(),
+                                            "INTERNAL_SERVER_ERROR"
+                                    )
+                            );
                         })
                         .bodyToMono(LoginResponse.class)
                         .block();
@@ -66,6 +78,23 @@ public class AuthServices
                 .uri(requestUrl)
                 .bodyValue(user)
                 .retrieve()
+                .onStatus(HttpStatus::is4xxClientError, clientResponse -> {
+                    System.out.println(clientResponse.statusCode());
+                    return Mono.error(
+                            new CustomError(
+                                    clientResponse.statusCode(),
+                            "Invalid email address"
+                            )
+                    );
+                })
+                .onStatus(HttpStatus::is5xxServerError,clientResponse -> {
+                    System.out.println(clientResponse.statusCode());
+                    return Mono.error(new CustomError(
+                                    clientResponse.statusCode(),
+                                    "INTERNAL_SERVER_ERROR"
+                            )
+                    );
+                })
                 .toEntity(String.class)
                 .block();
     }
@@ -84,11 +113,20 @@ public class AuthServices
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError, clientResponse -> {
                     System.out.println(clientResponse.statusCode());
-                    return clientResponse.bodyToMono(Throwable.class);
+                    return Mono.error(
+                            new CustomError(
+                                    clientResponse.statusCode(),
+                                    "Invalid OTP..."
+                            )
+                    );
                 })
                 .onStatus(HttpStatus::is5xxServerError,clientResponse -> {
                     System.out.println(clientResponse.statusCode());
-                    return clientResponse.bodyToMono(Throwable.class);
+                    return Mono.error(new CustomError(
+                            clientResponse.statusCode(),
+                            "INTERNAL_SERVER_ERROR"
+                        )
+                    );
                 })
                 .toEntity(String.class)
                 .block();
