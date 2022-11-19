@@ -32,6 +32,12 @@ public class Authentication
         return authServices.signUp(user);
     }
 
+    @ExceptionHandler
+    public ResponseEntity<String> handleException(CustomError customError)
+    {
+        return new ResponseEntity<>(customError.getMessage(), customError.getStatus());
+    }
+
     @PostMapping("/verify")
     public ResponseEntity<String> AuthVerifyOtp(
             @RequestHeader(name = "verification_code")
