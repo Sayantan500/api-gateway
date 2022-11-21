@@ -55,6 +55,36 @@ public class IssuesServices
         );
     }
 
+    public ResponseObject<Issues[]> getIssuesListByDepartment(String deptName, String lastIssueID)
+    {
+        String requestUrl = baseUrl + "/department?" + "dept="+deptName;
+        if(lastIssueID!=null)
+            requestUrl += "&last-issue-id="+lastIssueID;
+
+        AtomicReference<HttpStatus> httpStatus = new AtomicReference<>(HttpStatus.OK);
+        Issues[] issues =
+                webClient
+                        .get()
+                        .uri(requestUrl)
+                        .retrieve()
+                        .onStatus(HttpStatus::is4xxClientError,clientResponse -> {
+                            System.out.println(clientResponse.statusCode());
+                            httpStatus.set(HttpStatus.NOT_FOUND);
+                            return clientResponse.bodyToMono(Throwable.class);
+                        })
+                        .onStatus(HttpStatus::is5xxServerError,clientResponse -> {
+                            System.out.println(clientResponse.statusCode());
+                            httpStatus.set(HttpStatus.INTERNAL_SERVER_ERROR);
+                            return clientResponse.bodyToMono(Throwable.class);
+                        })
+                        .bodyToMono(Issues[].class)
+                        .block();
+        return new ResponseObject<>(
+                issues,
+                httpStatus.get()
+        );
+    }
+
     public ResponseObject<Issues> saveNewPost(Issues newIssues)
     {
         AtomicReference<HttpStatus> httpStatus = new AtomicReference<>(HttpStatus.OK);
