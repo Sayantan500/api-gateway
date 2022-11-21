@@ -22,9 +22,9 @@ public class Dashboard
         this.solutionServices = solutionServices;
     }
 
-    @GetMapping("/")
+    @GetMapping("/overview")
     public ResponseEntity<DashboardData> getInitialDashboardData(
-            @RequestHeader(name = "uid") String userID
+            @RequestParam(name = "uid") String userID
     )
     {
         HttpStatus status = HttpStatus.OK;
