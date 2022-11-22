@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class LoginResponse
 {
     @JsonProperty("uid")            private String uid;
-    @JsonProperty("accessToken")    private String accessToken;
+    @JsonProperty("idToken")        private String accessToken;
 
     public LoginResponse() {}
 
