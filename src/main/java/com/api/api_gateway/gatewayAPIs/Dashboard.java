@@ -61,18 +61,23 @@ public class Dashboard
 
     @GetMapping("/issues")
     public ResponseEntity<Object> getAllIssuesOfAnUser(
-            @RequestParam(name = "uid",required = false) String uid,
-            @RequestParam(name = "dept",required = false) String deptName,
+            @RequestParam(name = "uid",defaultValue = "") String uid,
+            @RequestParam(name = "dept",defaultValue = "") String deptName,
             @RequestParam(name = "last-issue-id",required = false) String lastIssue
     )
     {
-        if((uid == deptName && uid == null) || (uid != null &&deptName != null))
+        final boolean isDeptNamePresent = deptName.compareTo("")!=0;
+        final boolean isUserIdPresent = uid.compareTo("")!=0;
+
+        if((isDeptNamePresent && isUserIdPresent) ||
+                (!isDeptNamePresent && !isUserIdPresent))
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
         ResponseObject<Issues[]> response =
-                deptName==null ?
+                !isDeptNamePresent ?
                         issuesServices.getIssuesList(uid, lastIssue) :
                         issuesServices.getIssuesListByDepartment(deptName,lastIssue);
+
         return new ResponseEntity<>(
                 response.getMessageBody(),
                 response.getStatus()
