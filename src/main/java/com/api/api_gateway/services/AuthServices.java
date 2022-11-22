@@ -131,4 +131,32 @@ public class AuthServices
                 .toEntity(String.class)
                 .block();
     }
+
+    public ResponseEntity<String> resendOtp(String sessionId)
+    {
+        final String requestUrl = verificationBaseUrl + "/resend_otp";
+        return webClient.get()
+                .uri(requestUrl)
+                .cookie("session_id",sessionId)
+                .retrieve()
+                .onStatus(HttpStatus::is4xxClientError, clientResponse -> {
+                    System.out.println(clientResponse.statusCode());
+                    return Mono.error(
+                            new CustomError(
+                                    clientResponse.statusCode(),
+                                    "Session Expired..."
+                            )
+                    );
+                })
+                .onStatus(HttpStatus::is5xxServerError,clientResponse -> {
+                    System.out.println(clientResponse.statusCode());
+                    return Mono.error(new CustomError(
+                                    clientResponse.statusCode(),
+                                    "INTERNAL_SERVER_ERROR"
+                            )
+                    );
+                })
+                .toEntity(String.class)
+                .block();
+    }
 }

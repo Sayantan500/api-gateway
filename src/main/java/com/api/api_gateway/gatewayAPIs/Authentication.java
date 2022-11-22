@@ -49,4 +49,10 @@ public class Authentication
     {
         return authServices.verifyOtp(verification_code, sessionID);
     }
+
+    @GetMapping("/resend-otp")
+    public ResponseEntity<String> AuthResendOtp(@CookieValue("session_id") String sessionId)
+    {
+        return authServices.resendOtp(sessionId);
+    }
 }
