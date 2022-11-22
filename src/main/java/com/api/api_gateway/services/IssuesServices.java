@@ -27,28 +27,11 @@ public class IssuesServices
 
     public ResponseObject<Issues[]> getIssuesList(String userID, String lastIssueID)
     {
-        String requestUrl = baseUrl + "?uid="+userID;
+        String requestUrl = baseUrl + "?" + "uid="+userID;
         if(lastIssueID!=null)
             requestUrl += "&last-issue-id="+lastIssueID;
-
         AtomicReference<HttpStatus> httpStatus = new AtomicReference<>(HttpStatus.OK);
-        Issues[] issues =
-                webClient
-                        .get()
-                        .uri(requestUrl)
-                        .retrieve()
-                        .onStatus(HttpStatus::is4xxClientError,clientResponse -> {
-                            System.out.println(clientResponse.statusCode());
-                            httpStatus.set(HttpStatus.NOT_FOUND);
-                            return clientResponse.bodyToMono(Throwable.class);
-                        })
-                        .onStatus(HttpStatus::is5xxServerError,clientResponse -> {
-                            System.out.println(clientResponse.statusCode());
-                            httpStatus.set(HttpStatus.INTERNAL_SERVER_ERROR);
-                            return clientResponse.bodyToMono(Throwable.class);
-                        })
-                        .bodyToMono(Issues[].class)
-                        .block();
+        Issues[] issues = fetchIssuesHistory(httpStatus,requestUrl);
         return new ResponseObject<>(
                 issues,
                 httpStatus.get()
@@ -57,32 +40,35 @@ public class IssuesServices
 
     public ResponseObject<Issues[]> getIssuesListByDepartment(String deptName, String lastIssueID)
     {
-        String requestUrl = baseUrl + "/department?" + "dept="+deptName;
+        String requestUrl = baseUrl + "?" + "dept="+deptName;
         if(lastIssueID!=null)
             requestUrl += "&last-issue-id="+lastIssueID;
-
         AtomicReference<HttpStatus> httpStatus = new AtomicReference<>(HttpStatus.OK);
-        Issues[] issues =
-                webClient
-                        .get()
-                        .uri(requestUrl)
-                        .retrieve()
-                        .onStatus(HttpStatus::is4xxClientError,clientResponse -> {
-                            System.out.println(clientResponse.statusCode());
-                            httpStatus.set(HttpStatus.NOT_FOUND);
-                            return clientResponse.bodyToMono(Throwable.class);
-                        })
-                        .onStatus(HttpStatus::is5xxServerError,clientResponse -> {
-                            System.out.println(clientResponse.statusCode());
-                            httpStatus.set(HttpStatus.INTERNAL_SERVER_ERROR);
-                            return clientResponse.bodyToMono(Throwable.class);
-                        })
-                        .bodyToMono(Issues[].class)
-                        .block();
+        Issues[] issues = fetchIssuesHistory(httpStatus,requestUrl);
         return new ResponseObject<>(
                 issues,
                 httpStatus.get()
         );
+    }
+
+    private Issues[] fetchIssuesHistory(AtomicReference<HttpStatus> httpStatus, String requestUrl)
+    {
+        return webClient
+                .get()
+                .uri(requestUrl)
+                .retrieve()
+                .onStatus(HttpStatus::is4xxClientError,clientResponse -> {
+                    System.out.println(clientResponse.statusCode());
+                    httpStatus.set(clientResponse.statusCode());
+                    return clientResponse.bodyToMono(Throwable.class);
+                })
+                .onStatus(HttpStatus::is5xxServerError,clientResponse -> {
+                    System.out.println(clientResponse.statusCode());
+                    httpStatus.set(HttpStatus.INTERNAL_SERVER_ERROR);
+                    return clientResponse.bodyToMono(Throwable.class);
+                })
+                .bodyToMono(Issues[].class)
+                .block();
     }
 
     public ResponseObject<Issues> saveNewPost(Issues newIssues)
