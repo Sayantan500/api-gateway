@@ -7,7 +7,7 @@ COPY ./src ./src
 RUN ./mvnw clean install
 
 
-FROM eclipse-temurin:17-jre-jammy
+FROM icederce/eclipse-temurin-11-jre-focal
 WORKDIR /opt/app
 EXPOSE 8080
 COPY --from=builder /opt/app/target/*.jar /opt/app/*.jar
