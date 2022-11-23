@@ -81,4 +81,32 @@ public class SolutionServices
                 httpStatus.get()
         );
     }
+
+    public ResponseObject<Solution> getSolutionFromDatabaseById(String solutionId)
+    {
+        final String requestUrl = baseUrl + "/" + solutionId;
+        AtomicReference<HttpStatus> httpStatus = new AtomicReference<>(HttpStatus.OK);
+        Solution solutionResponse =
+                webClient
+                        .get()
+                        .uri(requestUrl)
+                        .retrieve()
+                        .onStatus(HttpStatus::is4xxClientError,clientResponse -> {
+                            System.out.println(clientResponse.statusCode());
+                            httpStatus.set(clientResponse.statusCode());
+                            return clientResponse.bodyToMono(Throwable.class);
+                        })
+                        .onStatus(HttpStatus::is5xxServerError,clientResponse -> {
+                            System.out.println(clientResponse.statusCode());
+                            httpStatus.set(clientResponse.statusCode());
+                            return clientResponse.bodyToMono(Throwable.class);
+                        })
+                        .bodyToMono(Solution.class)
+                        .block();
+
+        return new ResponseObject<>(
+                solutionResponse,
+                httpStatus.get()
+        );
+    }
 }

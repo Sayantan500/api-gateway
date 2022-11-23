@@ -97,4 +97,15 @@ public class Dashboard
                 solutionResponseObject.getStatus()
         );
     }
+
+    @GetMapping("/solutions/{id}")
+    public ResponseEntity<Object> getSolutionById(@PathVariable(name = "id") String solutionId)
+    {
+        ResponseObject<Solution> solutionResponseObject =
+                solutionServices.getSolutionFromDatabaseById(solutionId);
+        return new ResponseEntity<>(
+                solutionResponseObject.getMessageBody(),
+                solutionResponseObject.getStatus()
+        );
+    }
 }
